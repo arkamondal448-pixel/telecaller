@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitButton = form.querySelector("button[type='submit']");
 
   // 🔹 STEP 1: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbykbLXAlmu3youxu1BcWZVTY-A7VAAzZ_BFSUWl5XZ6WxJQi2QbTp760qrtlLleVT5m/exec";
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfizwu73WwNOT1UNyyosy0YDGop5Mw2wmw1HO0ULnt2WXa5dAh7o9cAef6_oRvww5xkg/exec";
 
   /**
    * Helper function to disable or enable all form fields within a parent element.
@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 
 
 
