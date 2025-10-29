@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calling Form</title>
+  <!-- Link to the CSS file -->
+  <link rel="stylesheet" href="telecaller.css" />
+</head>
+<body>
+  <div class="form-container">
+    <h2>Telecaller</h2>
+
+    <form id="callingForm">
+      <label for="callType">Select Call Type:</label>
+      <select id="callType" name="callType" required>
+        <option value="">-- Select --</option>
+        <option value="client">Client</option>
+        <option value="rider">Rider</option>
+        <option value="rental">Rental</option>
+      </select>
+
+      <!-- Client Fields -->
+      <div id="clientFields" class="hidden">
+        <label>Store Name:</label>
+        <input type="text" id="storeName" name="storeName" placeholder="Enter store name (Max 50 words)" required />
+        
+        <label>Number:</label>
+        <input type="tel" id="clientNumber" name="clientNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
+        
+        <label>Area:</label>
+        <input type="text" id="clientArea" name="clientArea" placeholder="Enter area (Max 50 words)" required />
+        
+        <label>Pin Code:</label>
+        <input type="tel" id="clientPincode" name="clientPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
+        
+        <label>Remarks:</label>
+        <textarea id="clientRemarks" name="clientRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+
+        <label>Status:</label>
+        <select id="clientStatus" name="clientStatus" required>
+          <option value="">-- Select Status --</option>
+          <option value="Interested">Interested</option>
+          <option value="Not Interested">Not Interested</option>
+        </select>
+      </div>
+
+      <!-- Rider Fields -->
+      <div id="riderFields" class="hidden">
+        <label>Full Name:</label>
+        <input type="text" id="riderName" name="riderName" placeholder="Enter full name (Max 50 words)" required />
+        
+        <label>Number:</label>
+        <input type="tel" id="riderNumber" name="riderNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
+        
+        <label>Area:</label>
+        <input type="text" id="riderArea" name="riderArea" placeholder="Enter area (Max 50 words)" required />
+        
+        <label>Pin Code:</label>
+        <input type="tel" id="riderPincode" name="riderPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
+        
+        <label>Remarks:</label>
+        <textarea id="riderRemarks" name="riderRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+
+        <label>Status:</label>
+        <select id="riderStatus" name="riderStatus" required>
+          <option value="">-- Select Status --</option>
+          <option value="Interested">Interested</option>
+          <option value="Not Interested">Not Interested</option>
+        </select>
+      </div>
+
+      <!-- Rental Fields -->
+      <div id="rentalFields" class="hidden">
+        <label>Full Name:</label>
+        <input type="text" id="rentalName" name="rentalName" placeholder="Enter full name (Max 50 words)" required />
+        
+        <label>Number:</label>
+        <input type="tel" id="rentalNumber" name="rentalNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
+        
+        <label>Area:</label>
+        <input type="text" id="rentalArea" name="rentalArea" placeholder="Enter area (Max 50 words)" required />
+        
+        <label>Pin Code:</label>
+        <input type="tel" id="rentalPincode" name="rentalPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
+        
+        <label>Remarks:</label>
+        <textarea id="rentalRemarks" name="rentalRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+
+        <label>Status:</label>
+        <select id="rentalStatus" name="rentalStatus" required>
+          <option value="">-- Select Status --</option>
+          <option value="Interested">Interested</option>
+          <option value="Not Interested">Not Interested</option>
+        </select>
+      </div>
+
+      <button type="submit">Submit</button>
+      <p id="output"></p>
+    </form>
+  </div>
+
+  <!-- Link to the JavaScript file -->
+  <script src="telecaller2.js"></script>
+</body>
+</html>
