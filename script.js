@@ -1,122 +1,456 @@
-document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", () => {
+
   const callType = document.getElementById("callType");
+
+  const clientUniversalFields = document.getElementById("clientUniversalFields");
   const clientFields = document.getElementById("clientFields");
+
   const riderFields = document.getElementById("riderFields");
+  const riderStatus = document.getElementById("riderStatus");
+  const riderDetails = document.getElementById("riderDetails");
+
   const rentalFields = document.getElementById("rentalFields");
+  const rentalStatus = document.getElementById("rentalStatus");      // ✅ FIXED (missing before)
+  const rentalDetails = document.getElementById("rentalDetails");    // ✅ FIXED (missing before)
+  const rentalRequirement = document.getElementById("rentalRequirement");
+
+  const riderNeededBox = document.getElementById("riderNeededBox");  // ❗ not "riderNeeded"
+  const riderNeeded = document.getElementById("riderNeeded");
+
   const form = document.getElementById("callingForm");
   const output = document.getElementById("output");
-  const submitButton = form.querySelector("button[type='submit']");
 
-  // 🔹 STEP 1: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxfizwu73WwNOT1UNyyosy0YDGop5Mw2wmw1HO0ULnt2WXa5dAh7o9cAef6_oRvww5xkg/exec";
+  const statusMain = document.getElementById("clientStatusMain");
+  const remarkField = document.getElementById("c_remark");
+  const reasonField = document.getElementById("c_reason");
+  const reasonLabel = document.getElementById("c_reason_label");
 
-  /**
-   * Helper function to disable or enable all form fields within a parent element.
-   */
-  function setFieldsDisabled(element, disabled) {
-    const inputs = element.querySelectorAll("input, select, textarea");
-    inputs.forEach((input) => {
-      input.disabled = disabled;
-    });
-  }
+  const WEB_APP_URL =
+    "https://script.google.com/macros/s/AKfycby-DBlGix0thHTZg4C-JFiSzt8Uj2A6NkICslXrk4KkknYVkEntqWBope114zhSAlaR/exec";
 
-  // Hide all fields initially
-  setFieldsDisabled(clientFields, true);
-  setFieldsDisabled(riderFields, true);
-  setFieldsDisabled(rentalFields, true);
-
-  // Show fields depending on call type
-  callType.addEventListener("change", () => {
+  function hideAll() {
+    clientUniversalFields.classList.add("hidden");
     clientFields.classList.add("hidden");
     riderFields.classList.add("hidden");
     rentalFields.classList.add("hidden");
+  }
 
-    setFieldsDisabled(clientFields, true);
-    setFieldsDisabled(riderFields, true);
-    setFieldsDisabled(rentalFields, true);
+  hideAll();
 
-    if (callType.value === "client") {
-      clientFields.classList.remove("hidden");
-      setFieldsDisabled(clientFields, false);
-    } else if (callType.value === "rider") {
-      riderFields.classList.remove("hidden");
-      setFieldsDisabled(riderFields, false);
-    } else if (callType.value === "rental") {
-      rentalFields.classList.remove("hidden");
-      setFieldsDisabled(rentalFields, false);
+  callType.addEventListener("change", () => {
+    hideAll();
+    if (callType.value === "client") clientUniversalFields.classList.remove("hidden");
+    else if (callType.value === "rider") riderFields.classList.remove("hidden");
+    else if (callType.value === "rental") rentalFields.classList.remove("hidden");
+  });
+
+  /* -------------------- CLIENT LOGIC -------------------- */
+
+  statusMain.addEventListener("change", () => {
+    const status = statusMain.value;
+    clientFields.classList.add("hidden");
+    if (status === "Interested" || status === "Thinking") clientFields.classList.remove("hidden");
+  });
+
+  remarkField.addEventListener("change", () => {
+    if (remarkField.value === "Rejected") {
+      reasonLabel.classList.remove("hidden");
+      reasonField.classList.remove("hidden");
+    } else {
+      reasonLabel.classList.add("hidden");
+      reasonField.classList.add("hidden");
+      reasonField.value = "";
     }
   });
 
-  // 🔹 Form Submission
-  form.addEventListener("submit", (e) => {
+  /* -------------------- RIDER LOGIC -------------------- */
+
+  riderStatus.addEventListener("change", () => {
+    if (riderStatus.value === "Interested" || riderStatus.value === "Deciding") {
+      riderDetails.classList.remove("hidden");
+    } else {
+      riderDetails.classList.add("hidden");
+    }
+  });
+
+    /* -------------------- RENTAL LOGIC -------------------- */
+
+  rentalStatus.addEventListener("change", () => {
+    const rs = rentalStatus.value;
+
+    if (rs === "Interested" || rs === "Deciding") {
+      rentalDetails.classList.remove("hidden");
+    } else {
+      rentalDetails.classList.add("hidden");
+    }
+  });
+
+  /* -------------------- RENTAL REQUIREMENT LOGIC -------------------- */
+
+  rentalRequirement.addEventListener("change", () => {
+    if (rentalRequirement.value === "scootywithrider") {
+      riderNeededBox.classList.remove("hidden");
+    } else {
+      riderNeededBox.classList.add("hidden");
+      riderNeeded.value = "";
+    }
+  });
+
+  /* -------------------- RIDER TYPE (if future needed) -------------------- */
+
+  const riderType = document.getElementById("riderType");
+  if (riderType) {
+    riderType.addEventListener("change", () => {});
+  }
+
+  /* -------------------- Debounce + utils -------------------- */
+
+  function debounce(fn, delay = 600) {
+    let t;
+    return function (...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  function convertDDMMYYYYtoYYYYMMDD(value) {
+    if (!value) return "";
+    const normalized = value.replace(/\//g, "-").trim();
+    const parts = normalized.split("-");
+    if (parts.length !== 3) return "";
+    const [dd, mm, yyyy] = parts;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  async function lookupMobile(sheetName, mobile) {
+    if (!mobile || mobile.length !== 10) return null;
+
+    const url = `${WEB_APP_URL}?action=lookup&sheet=${sheetName}&mobile=${mobile}`;
+
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch (err) {
+      console.error("Lookup failed:", err);
+      return null;
+    }
+  }
+
+  /* -------------------- CLIENT LOOKUP -------------------- */
+
+  const clientNumberInput = document.getElementById("clientMainNumber");
+
+  const handleClientLookup = debounce(async () => {
+    const mobile = clientNumberInput.value.trim();
+    if (mobile.length !== 10) return;
+
+    output.textContent = "⏳ Checking client record...";
+
+    const res = await lookupMobile("Client", mobile);
+
+    if (res && res.status === "found" && res.row) {
+      output.textContent = "✅ Client found — auto-filled.";
+      populateClientFieldsFromRow(res.row);
+    } else {
+      output.textContent = "ℹ️ No record. New entry.";
+      clearClientFields();
+    }
+  });
+
+  clientNumberInput.addEventListener("input", handleClientLookup);
+
+  /* -------------------- RIDER LOOKUP -------------------- */
+
+  const riderNumberInput = document.getElementById("riderNumber");
+
+  const handleRiderLookup = debounce(async () => {
+    const mobile = riderNumberInput.value.trim();
+    if (mobile.length !== 10) return;
+
+    output.textContent = "⏳ Checking rider record...";
+
+    const res = await lookupMobile("Rider", mobile);
+
+    if (res && res.status === "found" && res.row) {
+      output.textContent = "✅ Rider found — auto-filled.";
+      populateRiderFieldsFromRow(res.row);
+    } else {
+      output.textContent = "ℹ️ No record. New entry.";
+      clearRiderFields();
+    }
+  });
+
+  riderNumberInput.addEventListener("input", handleRiderLookup);
+
+  /* -------------------- POPULATE / CLEAR CLIENT -------------------- */
+
+  function populateClientFieldsFromRow(row) {
+    clientUniversalFields.classList.remove("hidden");
+    clientFields.classList.remove("hidden");
+
+    document.getElementById("clientMainNumber").value = row[1] || "";
+    document.getElementById("clientStatusMain").value = row[2] || "";
+
+    document.getElementById("c_fullname").value = row[3] || "";
+    document.getElementById("c_store").value = row[4] || "";
+    document.getElementById("c_business").value = row[5] || "";
+    document.getElementById("c_area").value = row[6] || "";
+    document.getElementById("c_rider_type").value = row[7] || "";
+    document.getElementById("c_gst").value = row[8] || "";
+    document.getElementById("c_purpose").value = row[9] || "";
+    document.getElementById("c_remark").value = row[10] || "";
+    document.getElementById("c_reason").value = row[11] || "";
+
+    if (row[10] === "Rejected") {
+      reasonLabel.classList.remove("hidden");
+      reasonField.classList.remove("hidden");
+    } else {
+      reasonLabel.classList.add("hidden");
+      reasonField.classList.add("hidden");
+    }
+
+    const st = row[2];
+    if (st === "Interested" || st === "Thinking") clientFields.classList.remove("hidden");
+    else clientFields.classList.add("hidden");
+  }
+
+  function clearClientFields() {
+    document.getElementById("c_fullname").value = "";
+    document.getElementById("c_store").value = "";
+    document.getElementById("c_business").value = "";
+    document.getElementById("c_area").value = "";
+    document.getElementById("c_rider_type").value = "";
+    document.getElementById("c_gst").value = "";
+    document.getElementById("c_purpose").value = "";
+    document.getElementById("c_remark").value = "";
+    document.getElementById("c_reason").value = "";
+    reasonLabel.classList.add("hidden");
+    reasonField.classList.add("hidden");
+  }
+
+  /* -------------------- POPULATE / CLEAR RIDER -------------------- */
+
+  function populateRiderFieldsFromRow(row) {
+    riderFields.classList.remove("hidden");
+
+    document.getElementById("riderNumber").value = row[1] || "";
+    document.getElementById("riderStatus").value = row[2] || "";
+    document.getElementById("riderName").value = row[3] || "";
+    document.getElementById("riderArea").value = row[4] || "";
+    document.getElementById("riderPincode").value = row[5] || "";
+    document.getElementById("riderRemarks").value = row[6] || "";
+    document.getElementById("riderDL").value = row[7] || "";
+
+    document.getElementById("riderInterview").value = convertDDMMYYYYtoYYYYMMDD(row[8]);
+    document.getElementById("riderSchedule1").value = convertDDMMYYYYtoYYYYMMDD(row[9]);
+    document.getElementById("riderSchedule2").value = convertDDMMYYYYtoYYYYMMDD(row[10]);
+
+    if (row[2] === "Interested" || row[2] === "Deciding") {
+      riderDetails.classList.remove("hidden");
+    } else {
+      riderDetails.classList.add("hidden");
+    }
+  }
+
+  function clearRiderFields() {
+    document.getElementById("riderName").value = "";
+    document.getElementById("riderArea").value = "";
+    document.getElementById("riderPincode").value = "";
+    document.getElementById("riderRemarks").value = "";
+    document.getElementById("riderDL").value = "";
+    document.getElementById("riderInterview").value = "";
+    document.getElementById("riderSchedule1").value = "";
+    document.getElementById("riderSchedule2").value = "";
+  }
+
+  /* -------------------- FORM SUBMIT -------------------- */
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!callType.value) {
-      output.textContent = "❌ Please select a call type!";
-      output.style.color = "red";
+      output.textContent = "❌ Please select call type!";
       return;
     }
 
-    submitButton.disabled = true;
-    output.textContent = "Submitting...";
-    output.style.color = "#555";
+    let data = { callType: callType.value };
 
-    const type = callType.value;
-    let data = { callType: type };
+    /* -------------------- CLIENT SUBMIT -------------------- */
+    if (callType.value === "client") {
+      const number = document.getElementById("clientMainNumber").value.trim();
+      const status = statusMain.value;
 
-    // Collect data according to the type
-    if (type === "client") {
-      data.storeName = document.getElementById("storeName").value;
-      data.number = document.getElementById("clientNumber").value;
-      data.area = document.getElementById("clientArea").value;
-      data.pincode = document.getElementById("clientPincode").value;
-      data.remarks = document.getElementById("clientRemarks").value;
-      data.status = document.getElementById("clientStatus").value;
-    } else if (type === "rider") {
-      data.fullName = document.getElementById("riderName").value;
-      data.number = document.getElementById("riderNumber").value;
-      data.area = document.getElementById("riderArea").value;
-      data.pincode = document.getElementById("riderPincode").value;
-      data.remarks = document.getElementById("riderRemarks").value;
-      data.status = document.getElementById("riderStatus").value;
-    } else if (type === "rental") {
-      data.fullName = document.getElementById("rentalName").value;
-      data.number = document.getElementById("rentalNumber").value;
-      data.area = document.getElementById("rentalArea").value;
-      data.pincode = document.getElementById("rentalPincode").value;
-      data.remarks = document.getElementById("rentalRemarks").value;
-      data.status = document.getElementById("rentalStatus").value;
+      if (!number || number.length !== 10) {
+        output.textContent = "❌ Enter valid client mobile!";
+        return;
+      }
+
+      if (!status) {
+        output.textContent = "❌ Select status!";
+        return;
+      }
+
+      data.number = number;
+      data.status = status;
+
+      if (status === "Interested" || status === "Thinking") {
+        const fullname = document.getElementById("c_fullname").value.trim();
+        const business = document.getElementById("c_business").value.trim();
+        const area = document.getElementById("c_area").value.trim();
+        const riderType = document.getElementById("c_rider_type").value;
+        const gst = document.getElementById("c_gst").value;
+        const purpose = document.getElementById("c_purpose").value.trim();
+        const remark = remarkField.value;
+        const reason = reasonField.value.trim();
+
+        if (status === "Interested") {
+          if (!fullname || !business || !area || !riderType || !gst || !purpose || !remark) {
+            output.textContent = "❌ Fill all required fields!";
+            return;
+          }
+        }
+
+        if (remark === "Rejected" && !reason) {
+          output.textContent = "❌ Enter reason!";
+          return;
+        }
+
+        data.fullname = fullname;
+        data.storeName = document.getElementById("c_store").value.trim();
+        data.business = business;
+        data.area = area;
+        data.riderType = riderType;
+        data.gst = gst;
+        data.purpose = purpose;
+        data.remark = remark;
+        data.reason = reason;
+      }
     }
 
-    // 🔹 Send Data to Apps Script Web App
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors", // required for Google Apps Script
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then(() => {
-        output.textContent = "✅ Data submitted successfully!";
-        output.style.color = "green";
-        form.reset();
-        callType.value = "";
-        clientFields.classList.add("hidden");
-        riderFields.classList.add("hidden");
-        rentalFields.classList.add("hidden");
-      })
-      .catch((err) => {
-        console.error("Submission error:", err);
-        output.textContent = "❌ Submission failed. Check console.";
-        output.style.color = "red";
-      })
-      .finally(() => {
-        submitButton.disabled = false;
+    /* -------------------- RIDER SUBMIT -------------------- */
+    if (callType.value === "rider") {
+      const rMobile = document.getElementById("riderNumber").value.trim();
+      const rStatus = document.getElementById("riderStatus").value;
+
+      if (!rMobile || rMobile.length !== 10) {
+        output.textContent = "❌ Enter rider mobile!";
+        return;
+      }
+
+      if (!rStatus) {
+        output.textContent = "❌ Select rider status!";
+        return;
+      }
+
+      data.riderMobile = rMobile;
+      data.riderStatus = rStatus;
+
+      if (rStatus === "Interested" || rStatus === "Deciding") {
+        data.riderName = document.getElementById("riderName").value.trim();
+        data.riderArea = document.getElementById("riderArea").value.trim();
+        data.riderPincode = document.getElementById("riderPincode").value.trim();
+        data.riderRemarks = document.getElementById("riderRemarks").value.trim();
+        data.riderDL = document.getElementById("riderDL").value;
+        data.interviewDate = document.getElementById("riderInterview").value;
+        data.schedule2 = document.getElementById("riderSchedule2").value;
+        data.schedule3 = document.getElementById("riderSchedule3").value;
+
+        if (rStatus === "Interested") {
+          if (!data.riderName || !data.riderArea || !data.riderPincode ||
+              !data.riderDL || !data.interviewDate) {
+            output.textContent = "❌ Fill all required fields!";
+            return;
+          }
+        }
+      }
+    }
+
+    /* -------------------- RENTAL SUBMIT -------------------- */
+if (callType.value === "rental") {
+
+  const rNumber = document.getElementById("rentalNumber").value.trim();
+  const rStatus = document.getElementById("rentalStatus").value;
+  const rName = document.getElementById("rentalName").value.trim();
+  const rArea = document.getElementById("rentalArea").value.trim();
+  const rPincode = document.getElementById("rentalPincode").value.trim();
+  const rRemarks = document.getElementById("rentalRemarks").value.trim();
+  
+  const rPurpose = document.getElementById("rentalPurpose").value.trim();
+  const rRequirement = document.getElementById("rentalRequirement").value;
+
+  // ✅ FIXED HERE
+  const rRiderNeeded = document.getElementById("riderNeeded").value;
+
+  const rSchedule2 = document.getElementById("rentalSchedule2").value;
+  const rSchedule3 = document.getElementById("rentalSchedule3").value;
+
+  if (!rNumber || rNumber.length !== 10) {
+    output.textContent = "❌ Enter valid rental mobile!";
+    return;
+  }
+
+  if (!rRequirement) {
+    output.textContent = "❌ Select requirement!";
+    return;
+  }
+
+  // only check when scooty-with-rider
+  if (rRequirement === "scootywithrider" && !rRiderNeeded) {
+    output.textContent = "❌ Select rider preference!";
+    return;
+  }
+
+  data.rentalName = rName;
+  data.rentalNumber = rNumber;
+  data.rentalArea = rArea;
+  data.rentalPincode = rPincode;
+  data.rentalStatus = rStatus;
+  data.rentalPurpose = rPurpose;
+  data.rentalRequirement = rRequirement;
+  data.riderNeeded = rRiderNeeded;
+  data.schedule2 = rSchedule2;
+  data.schedule3 = rSchedule3;
+}
+
+
+    /* -------------------- SEND -------------------- */
+
+    try {
+      const resp = await fetch(WEB_APP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(data),
       });
+
+      let json;
+      try {
+        json = await resp.json();
+      } catch {
+        json = null;
+      }
+
+      if (json && json.status === "success") {
+        output.style.color = "green";
+        output.textContent = "✅ Submitted!";
+        form.reset();
+        hideAll();
+      } else if (resp.ok) {
+        output.style.color = "green";
+        output.textContent = "✅ Submitted!";
+        form.reset();
+        hideAll();
+      } else {
+        output.style.color = "red";
+        output.textContent = "❌ Server error!";
+      }
+    } catch (err) {
+      output.style.color = "red";
+      output.textContent = "❌ Submit failed: " + err.message;
+    }
   });
 
-  // --- 50-WORD LIMIT SCRIPT ---
+  /* -------------------- 50-WORD LIMIT -------------------- */
   const wordLimit = 50;
   const textFields = document.querySelectorAll('input[type="text"], textarea');
   textFields.forEach((field) => {
@@ -128,7 +462,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
-
-
-
