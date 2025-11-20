@@ -26,7 +26,7 @@
   const reasonLabel = document.getElementById("c_reason_label");
 
   const WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycby-DBlGix0thHTZg4C-JFiSzt8Uj2A6NkICslXrk4KkknYVkEntqWBope114zhSAlaR/exec";
+    "https://script.google.com/macros/s/AKfycbyKN96upW0gjKIG3SYLhquNOPEKdMQGVgC5QEGRcBEJj7JKfriiruEEXdALUo8rahs9/exec";
 
   function hideAll() {
     clientUniversalFields.classList.add("hidden");
