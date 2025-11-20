@@ -4,14 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calling Form</title>
-  <!-- Link to the CSS file -->
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .hidden { display: none; }
+    label { display:block; margin-top:8px; }
+    input, select, textarea { width: 100%; padding:6px; box-sizing:border-box; margin-top:4px; }
+  </style>
 </head>
+
 <body>
   <div class="form-container">
     <h2>Telecaller</h2>
 
-    <form id="callingForm">
+    <form id="callingForm" autocomplete="off">
+
+      <!-- CALL TYPE -->
       <label for="callType">Select Call Type:</label>
       <select id="callType" name="callType" required>
         <option value="">-- Select --</option>
@@ -20,89 +27,177 @@
         <option value="rental">Rental</option>
       </select>
 
-      <!-- Client Fields -->
+      <!-- UNIVERSAL CLIENT -->
+      <div id="clientUniversalFields" class="hidden">
+        <label>Mobile Number:</label>
+        <input type="tel" id="clientMainNumber" maxlength="10" pattern="[0-9]{10}" />
+
+        <label>Status:</label>
+        <select id="clientStatusMain">
+          <option value="">-- Select Status --</option>
+          <option value="Interested">Interested</option>
+          <option value="Not Interested">Not Interested</option>
+          <option value="Thinking">Thinking</option>
+        </select>
+      </div>
+
+      <!-- CLIENT FIELDS -->
       <div id="clientFields" class="hidden">
+
+        <label>Full Name:</label>
+        <input type="text" id="c_fullname" />
+
         <label>Store Name:</label>
-        <input type="text" id="storeName" name="storeName" placeholder="Enter store name (Max 50 words)" required />
-        
-        <label>Number:</label>
-        <input type="tel" id="clientNumber" name="clientNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
-        
-        <label>Area:</label>
-        <input type="text" id="clientArea" name="clientArea" placeholder="Enter area (Max 50 words)" required />
-        
-        <label>Pin Code:</label>
-        <input type="tel" id="clientPincode" name="clientPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
-        
-        <label>Remarks:</label>
-        <textarea id="clientRemarks" name="clientRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+        <input type="text" id="c_store" />
 
-        <label>Status:</label>
-        <select id="clientStatus" name="clientStatus" required>
-          <option value="">-- Select Status --</option>
-          <option value="Interested">Interested</option>
-          <option value="Not Interested">Not Interested</option>
+        <label>Type of Business:</label>
+        <input type="text" id="c_business" />
+
+        <label>Area:</label>
+        <input type="text" id="c_area" />
+
+        <label>Rider Type:</label>
+        <select id="c_rider_type">
+          <option value="">-- Select --</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
         </select>
+
+        <label>Has GST?</label>
+        <select id="c_gst">
+          <option value="">-- Select --</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+
+        <label>Purpose:</label>
+        <input type="text" id="c_purpose" />
+
+        <label>Remark:</label>
+        <select id="c_remark">
+          <option value="">-- Select --</option>
+          <option value="Granted">Granted</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+
+        <label id="c_reason_label" class="hidden">Reason (If Rejected):</label>
+        <input id="c_reason" class="hidden" type="text" />
       </div>
 
-      <!-- Rider Fields -->
+      <!-- RIDER FIELDS -->
+      <!-- FIXED ALL IDs TO MATCH JS -->
       <div id="riderFields" class="hidden">
-        <label>Full Name:</label>
-        <input type="text" id="riderName" name="riderName" placeholder="Enter full name (Max 50 words)" required />
-        
-        <label>Number:</label>
-        <input type="tel" id="riderNumber" name="riderNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
-        
-        <label>Area:</label>
-        <input type="text" id="riderArea" name="riderArea" placeholder="Enter area (Max 50 words)" required />
-        
-        <label>Pin Code:</label>
-        <input type="tel" id="riderPincode" name="riderPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
-        
-        <label>Remarks:</label>
-        <textarea id="riderRemarks" name="riderRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+
+        <label>Mobile Number:</label>
+        <input type="tel" id="riderNumber" maxlength="10" pattern="[0-9]{10}" />
 
         <label>Status:</label>
-        <select id="riderStatus" name="riderStatus" required>
-          <option value="">-- Select Status --</option>
+        <select id="riderStatus">
+          <option value="">-- Select --</option>
           <option value="Interested">Interested</option>
+          <option value="Deciding">Deciding</option>
           <option value="Not Interested">Not Interested</option>
         </select>
+
+        <div id="riderDetails" class="hidden">
+
+          <label>Full Name:</label>
+          <input type="text" id="riderName" />
+
+          <label>Area:</label>
+          <input type="text" id="riderArea" />
+
+          <label>Pincode:</label>
+          <input type="tel" id="riderPincode" maxlength="6" />
+
+          <label>Remarks:</label>
+          <textarea id="riderRemarks"></textarea>
+
+          <label>Driving License:</label>
+          <select id="riderDL">
+            <option value="">-- Select --</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+
+          <label>Interview Date:</label>
+          <input type="date" id="riderInterview" />
+
+          <label>2nd Schedule:</label>
+          <input type="date" id="riderSchedule1" />
+
+          <label>3rd Schedule:</label>
+          <input type="date" id="riderSchedule2" />
+
+        </div>
       </div>
 
-      <!-- Rental Fields -->
-      <div id="rentalFields" class="hidden">
-        <label>Full Name:</label>
-        <input type="text" id="rentalName" name="rentalName" placeholder="Enter full name (Max 50 words)" required />
-        
-        <label>Number:</label>
-        <input type="tel" id="rentalNumber" name="rentalNumber" placeholder="Enter 10-digit number" pattern="[0-9]{10}" maxlength="10" required />
-        
-        <label>Area:</label>
-        <input type="text" id="rentalArea" name="rentalArea" placeholder="Enter area (Max 50 words)" required />
-        
-        <label>Pin Code:</label>
-        <input type="tel" id="rentalPincode" name="rentalPincode" placeholder="Enter 6-digit pincode" pattern="[0-9]{6}" maxlength="6" required />
-        
-        <label>Remarks:</label>
-        <textarea id="rentalRemarks" name="rentalRemarks" placeholder="Enter remarks (Max 50 words)" required></textarea>
+      <!-- RENTAL -->
+      <!-- FIXED IDs TO MATCH JS -->
+      <!-- RENTAL FIX -->
+<div id="rentalFields" class="hidden">
 
-        <label>Status:</label>
-        <select id="rentalStatus" name="rentalStatus" required>
-          <option value="">-- Select Status --</option>
-          <option value="Interested">Interested</option>
-          <option value="Not Interested">Not Interested</option>
-        </select>
-      </div>
+  <label>Mobile Number:</label>
+  <input type="tel" id="rentalNumber" maxlength="10" pattern="[0-9]{10}">
+
+  <label>Status:</label>
+  <select id="rentalStatus">
+    <option value="">-- Select Status --</option>
+    <option value="Interested">Interested</option>
+    <option value="Deciding">Deciding</option>
+    <option value="Not Interested">Not Interested</option>
+  </select>
+
+  <div id="rentalDetails" class="hidden">
+
+    <label>Full Name:</label>
+    <input type="text" id="rentalName">
+
+    <label>Area:</label>
+    <input type="text" id="rentalArea">
+
+    <label>Pin Code:</label>
+    <input type="tel" id="rentalPincode" maxlength="6">
+
+    <label>Remarks:</label>
+    <textarea id="rentalRemarks"></textarea>
+
+    <label>Purpose of Rent:</label>
+    <input type="text" id="rentalPurpose">
+
+    <label>Requirement:</label>
+    <select id="rentalRequirement">
+      <option value="">-- Select --</option>
+      <option value="onlyscooty">Only Scooty</option>
+      <option value="scootywithrider">Scooty With Rider</option>
+    </select>
+
+    <div id="riderNeededBox" class="hidden">
+      <label>If Rider Needed:</label>
+      <select id="riderNeeded">
+        <option value="">-- Select --</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
+
+    <label>1st Schedule:</label>
+    <input type="date" id="rentalSchedule2">
+
+    <label>2nd Schedule:</label>
+    <input type="date" id="rentalSchedule3">
+
+  </div>
+</div>
+
+
 
       <button type="submit">Submit</button>
       <p id="output"></p>
+
     </form>
   </div>
 
-  <!-- Link to the JavaScript file -->
   <script src="script.js"></script>
 </body>
 </html>
-
-
