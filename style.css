@@ -2,29 +2,27 @@ body {
   font-family: 'Poppins', sans-serif;
   background: linear-gradient(135deg, #667eea, #764ba2);
   margin: 0;
-  padding: 20px; /* Add padding for smaller screens */
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Use min-height */
-  box-sizing: border-box; /* Include padding in height calculation */
+  min-height: 100vh;
 }
 
 .form-container {
   background: white;
   padding: 30px 40px;
   border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  width: 100%; /* Make width responsive */
-  max-width: 450px; /* Set a max-width */
-  text-align: center;
-  box-sizing: border-box; /* Include padding in width calculation */
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 650px;
+  box-sizing: border-box;
 }
 
 h2 {
-  margin-top: 0; /* Adjust margin */
-  margin-bottom: 20px;
+  margin-top: 0;
   color: #333;
+  text-align: center;
 }
 
 label {
@@ -32,38 +30,38 @@ label {
   text-align: left;
   margin-top: 12px;
   font-weight: 600;
-  color: #555;
+  color: #333;
 }
 
 input, select, textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
   border-radius: 8px;
+  border: 1px solid #ccc;
   margin-top: 6px;
-  margin-bottom: 10px; 
+  margin-bottom: 10px;
   font-size: 14px;
-  transition: border 0.3s ease;
-  resize: none; /* Prevents textarea resizing */
-  box-sizing: border-box; /* Include padding in width */
+  box-sizing: border-box;
 }
+
+textarea { min-height: 80px; resize: vertical; }
 
 input:focus, select:focus, textarea:focus {
   border-color: #667eea;
   outline: none;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.08);
 }
 
 button {
-  margin-top: 20px;
   width: 100%;
   padding: 12px;
-  background: #667eea;
+  margin-top: 10px;
   border: none;
+  background: #667eea;
   color: white;
   font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
 button:hover {
@@ -75,8 +73,7 @@ button:hover {
 }
 
 #output {
-  margin-top: 15px;
+  margin-top: 12px;
   font-weight: 600;
+  text-align: center;
 }
-
-
