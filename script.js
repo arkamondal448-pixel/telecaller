@@ -26,7 +26,7 @@
   const reasonLabel = document.getElementById("c_reason_label");
 
   const WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbyKN96upW0gjKIG3SYLhquNOPEKdMQGVgC5QEGRcBEJj7JKfriiruEEXdALUo8rahs9/exec";
+    "https://script.google.com/macros/s/AKfycbxDeBqAvLEoGu-vR2tDbqh6lio6wJJyNBkQ_Q5gzE_ftBNXA5cYZVpGJ1oOM6VhvqDw/exec";
 
   function hideAll() {
     clientUniversalFields.classList.add("hidden");
@@ -183,6 +183,30 @@
 
   riderNumberInput.addEventListener("input", handleRiderLookup);
 
+  /* -------------------- RENTAL LOOKUP -------------------- */
+
+const rentalNumberInput = document.getElementById("rentalNumber");
+
+const handleRentalLookup = debounce(async () => {
+  const mobile = rentalNumberInput.value.trim();
+  if (mobile.length !== 10) return;
+
+  output.textContent = "⏳ Checking rental record...";
+
+  const res = await lookupMobile("Rental", mobile);
+
+  if (res && res.status === "found" && res.row) {
+    output.textContent = "✅ Rental record found — auto-filled.";
+    populateRentalFieldsFromRow(res.row);
+  } else {
+    output.textContent = "ℹ️ No record. New rental entry.";
+    clearRentalFields();
+  }
+});
+
+rentalNumberInput.addEventListener("input", handleRentalLookup);
+
+
   /* -------------------- POPULATE / CLEAR CLIENT -------------------- */
 
   function populateClientFieldsFromRow(row) {
@@ -243,8 +267,8 @@
     document.getElementById("riderDL").value = row[7] || "";
 
     document.getElementById("riderInterview").value = convertDDMMYYYYtoYYYYMMDD(row[8]);
-    document.getElementById("riderSchedule1").value = convertDDMMYYYYtoYYYYMMDD(row[9]);
-    document.getElementById("riderSchedule2").value = convertDDMMYYYYtoYYYYMMDD(row[10]);
+    document.getElementById("riderSchedule2").value = convertDDMMYYYYtoYYYYMMDD(row[9]);
+    document.getElementById("riderSchedule3").value = convertDDMMYYYYtoYYYYMMDD(row[10]);
 
     if (row[2] === "Interested" || row[2] === "Deciding") {
       riderDetails.classList.remove("hidden");
@@ -263,6 +287,51 @@
     document.getElementById("riderSchedule1").value = "";
     document.getElementById("riderSchedule2").value = "";
   }
+
+  /* -------------------- POPULATE / CLEAR RENTAL -------------------- */
+
+function populateRentalFieldsFromRow(row) {
+
+  rentalFields.classList.remove("hidden");
+  rentalDetails.classList.remove("hidden");
+
+  document.getElementById("rentalNumber").value = row[1] || "";
+  document.getElementById("rentalStatus").value = row[2] || "";
+  document.getElementById("rentalName").value = row[3] || "";
+  document.getElementById("rentalArea").value = row[4] || "";
+  document.getElementById("rentalPincode").value = row[5] || "";
+  document.getElementById("rentalRemarks").value = row[6] || "";
+  document.getElementById("rentalPurpose").value = row[7] || "";
+  document.getElementById("rentalRequirement").value = row[8] || "";
+
+  // Rider needed (only apply if requirement was scooty with rider)
+  if (row[8] === "scootywithrider") {
+    riderNeededBox.classList.remove("hidden");
+    document.getElementById("riderNeeded").value = row[9] || "";
+  } else {
+    riderNeededBox.classList.add("hidden");
+  }
+
+  document.getElementById("rentalSchedule2").value =
+    convertDDMMYYYYtoYYYYMMDD(row[10]);
+
+  document.getElementById("rentalSchedule3").value =
+    convertDDMMYYYYtoYYYYMMDD(row[11]);
+}
+
+function clearRentalFields() {
+  document.getElementById("rentalName").value = "";
+  document.getElementById("rentalArea").value = "";
+  document.getElementById("rentalPincode").value = "";
+  document.getElementById("rentalRemarks").value = "";
+  document.getElementById("rentalPurpose").value = "";
+  document.getElementById("rentalRequirement").value = "";
+  document.getElementById("riderNeeded").value = "";
+  document.getElementById("rentalSchedule2").value = "";
+  document.getElementById("rentalSchedule3").value = "";
+  riderNeededBox.classList.add("hidden");
+}
+
 
   /* -------------------- FORM SUBMIT -------------------- */
 
@@ -405,12 +474,13 @@ if (callType.value === "rental") {
   data.rentalNumber = rNumber;
   data.rentalArea = rArea;
   data.rentalPincode = rPincode;
+  data.rentalRemarks = rRemarks;
   data.rentalStatus = rStatus;
   data.rentalPurpose = rPurpose;
   data.rentalRequirement = rRequirement;
   data.riderNeeded = rRiderNeeded;
-  data.schedule2 = rSchedule2;
-  data.schedule3 = rSchedule3;
+  data.rentalSchedule2 = rSchedule2;
+  data.rentalSchedule3 = rSchedule3;
 }
 
 
