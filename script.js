@@ -26,7 +26,7 @@
   const reasonLabel = document.getElementById("c_reason_label");
 
   const WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbxDeBqAvLEoGu-vR2tDbqh6lio6wJJyNBkQ_Q5gzE_ftBNXA5cYZVpGJ1oOM6VhvqDw/exec";
+    "https://script.google.com/macros/s/AKfycbxQN55rQZ90a1ZjIBt-jeqSFAWXbQFRHOO02J-98Kde9nmuoKqPzzVLg1saGrrrijgE8w/exec";
 
   function hideAll() {
     clientUniversalFields.classList.add("hidden");
@@ -532,3 +532,4 @@ if (callType.value === "rental") {
     });
   });
 });
+
