@@ -489,7 +489,6 @@ if (callType.value === "rental") {
     try {
       const resp = await fetch(WEB_APP_URL, {
         method: "POST",
-        mode: "cors"
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(data),
       });
@@ -533,6 +532,7 @@ if (callType.value === "rental") {
     });
   });
 });
+
 
 
 
