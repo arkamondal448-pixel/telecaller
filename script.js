@@ -1,5 +1,3 @@
-this is full script.js
-
   document.addEventListener("DOMContentLoaded", () => {
 
   const callType = document.getElementById("callType");
@@ -534,6 +532,201 @@ if (callType.value === "rental") {
     });
   });
 });
+full app script
+/**
+ * Web App for telecaller:
+ * - GET ?action=lookup&sheet=Client|Rider|Rental&mobile=XXXXXXXXXX
+ * - POST (JSON body) => saves data
+ */
+
+function doGet(e) {
+  try {
+    const action = (e.parameter.action || "").toString();
+    if (action !== "lookup") {
+      return jsonResponse({ status: "error", message: "Invalid action" });
+    }
+
+    const sheetName = (e.parameter.sheet || "").toString();
+    const mobile = (e.parameter.mobile || "").toString().trim();
+
+    if (!sheetName || !mobile) {
+      return jsonResponse({ status: "error", message: "Missing sheet or mobile parameter" });
+    }
+
+    const SHEET_ID5 = "1HgVHEHq0EaFPVxBju45Zk2udT3sThyrJ6pYdp73GvEI";
+    const ss = SpreadsheetApp.openById(SHEET_ID5);
+    const sheet = ss.getSheetByName(sheetName);
+
+    if (!sheet) {
+      return jsonResponse({ status: "not_found", message: "Sheet not found" });
+    }
+
+    const values = sheet.getDataRange().getDisplayValues();
+
+    /*
+     * Mobile column indexes (0-based):
+     * Client  -> Column B -> index 1
+     * Rider   -> Column B -> index 1
+     * Rental  -> Column C -> index 1
+     */
+    let mobileColIndex = 1;
+    if (sheetName === "Rental") mobileColIndex = 1;
+
+    for (let i = 0; i < values.length; i++) {
+      const rowMobile = (values[i][mobileColIndex] || "").toString().trim();
+      if (rowMobile === mobile) {
+        return jsonResponse({ status: "found", row: values[i] });
+      }
+    }
+
+    return jsonResponse({ status: "not_found", message: "Mobile not found" });
+
+  } catch (err) {
+    Logger.log("doGet error: " + err);
+    return jsonResponse({ status: "error", message: err.message });
+  }
+}
+
+
+
+/* -----------------------------------------------------
+ *                   POST SAVE HANDLER
+ * ----------------------------------------------------- */
+
+function doPost(e) {
+  try {
+    const postData =
+      (typeof e.postData === "object" && e.postData.contents)
+        ? JSON.parse(e.postData.contents)
+        : null;
+
+    if (!postData) {
+      return jsonResponse({ status: "error", message: "Invalid POST data" });
+    }
+
+    const data = postData;
+    const callType = data.callType;
+
+    if (!callType) {
+      return jsonResponse({ status: "error", message: "Missing callType" });
+    }
+
+    const SHEET_ID5 = "1HgVHEHq0EaFPVxBju45Zk2udT3sThyrJ6pYdp73GvEI";
+    const ss = SpreadsheetApp.openById(SHEET_ID5);
+    let sheet;
+
+
+    /* ---------------------- CLIENT SAVE ---------------------- */
+    if (callType.toLowerCase().trim() === "client") {
+ 
+      sheet = ss.getSheetByName("Client") || ss.insertSheet("Client");
+
+      sheet.appendRow([
+        new Date(),                  // A Timestamp
+        data.number || "",           // B Mobile Number
+        data.status || "",           // C Status
+        data.fullname || "",         // D Full Name
+        data.storeName || "",        // E Store Name
+        data.business || "",         // F Business
+        data.area || "",             // G Area
+        data.riderType || "",        // H Rider Type
+        data.gst || "",              // I GST
+        data.purpose || "",          // J Purpose
+        data.remark || "",           // K Remark
+        data.reason || ""            // L Reason
+      ]);
+    }
+
+
+
+    /* ---------------------- RIDER SAVE ---------------------- */
+    else if (callType.toLowerCase().trim() === "rider") {
+
+      sheet = ss.getSheetByName("Rider") || ss.insertSheet("Rider");
+
+      sheet.appendRow([
+        new Date(),                               // A Timestamp
+        data.riderMobile || "",                   // B Mobile Number
+        data.riderStatus || "",                   // C Status
+        data.riderName || "",                     // D Name
+        data.riderArea || "",                     // E Area
+        data.riderPincode || "",                  // F Pincode
+        data.riderRemarks || "",                  // G Remarks
+        data.riderDL || "",                       // H Driving License
+        formatDate_ddmmyyyy(data.interviewDate),  // I Interview Date
+        formatDate_ddmmyyyy(data.schedule2),      // J 2nd Schedule
+        formatDate_ddmmyyyy(data.schedule3)       // K 3rd Schedule
+      ]);
+    }
+
+
+
+    /* ---------------------- RENTAL SAVE ---------------------- */
+    else if (callType.toLowerCase().trim() === "rental") {
+
+      sheet = ss.getSheetByName("Rental") || ss.insertSheet("Rental");
+
+      sheet.appendRow([
+        new Date(),                                   // A Timestamp
+        data.rentalNumber || "",                      // B Mobile
+        data.rentalStatus || "",                      // C Status
+        data.rentalName || "",                        // D Name
+        data.rentalArea || "",                        // E Area
+        data.rentalPincode || "",                     // F Pincode
+        data.rentalRemarks || "",                     // G Remarks
+        data.rentalPurpose || "",                     // H Purpose
+        data.rentalRequirement || "",                 // I Requirement
+        data.riderNeeded || "",                       // J Rider Needed
+        formatDate_ddmmyyyy(data.rentalSchedule2),    // K Schedule 1
+        formatDate_ddmmyyyy(data.rentalSchedule3)     // L Schedule 2
+      ]);
+    }
+
+
+
+    /* ---------------------- INVALID CALL TYPE ---------------------- */
+    else {
+      return jsonResponse({ status: "error", message: "Invalid call type" });
+    }
+
+
+    return jsonResponse({ status: "success", message: "Data saved!" });
+
+
+  } catch (err) {
+    Logger.log("doPost Error: " + err);
+    return jsonResponse({ status: "error", message: err.message });
+  }
+}
+
+
+
+/* ---------------------- DATE FORMATTER ---------------------- */
+
+function formatDate_ddmmyyyy(value) {
+  if (!value) return "";
+  try {
+    const d = new Date(value);
+    if (isNaN(d)) return "";
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  } catch (_) {
+    return "";
+  }
+}
+
+
+
+/* ---------------------- JSON RESPONSE ---------------------- */
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}  
+
 
 
 
