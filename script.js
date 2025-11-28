@@ -489,10 +489,11 @@ if (callType.value === "rental") {
 
     try {
       const resp = await fetch(WEB_APP_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+       method: "POST",
+       mode: "no-cors",
+       body: JSON.stringify(data),
+});
+
 
       let json;
       try {
@@ -506,6 +507,7 @@ if (callType.value === "rental") {
         output.textContent = "✅ Submitted!";
         form.reset();
         hideAll();
+        return;
       } else if (resp.ok) {
         output.style.color = "green";
         output.textContent = "✅ Submitted!";
@@ -533,6 +535,7 @@ if (callType.value === "rental") {
     });
   });
 });
+
 
 
 
