@@ -1,3 +1,6 @@
+now said ❌ Submit failed: Failed to fetch
+this is full telecaller.js 
+
   document.addEventListener("DOMContentLoaded", () => {
 
   const callType = document.getElementById("callType");
@@ -26,7 +29,7 @@
   const reasonLabel = document.getElementById("c_reason_label");
 
   const WEB_APP_URL =
-    "https://script.google.com/macros/s/AKfycbzvImf7dUYJJ2JNM3QmuUDA80nwgLOJsVynRmQh7f6M34JS4SYHMqIq7zO_YYgptiFaig/exec";
+    "https://script.google.com/macros/s/AKfycbwXvaqLmAEIoM-Er9wJE15O5RCXJfFE7NfgkUf0cy6hyBmiZKE8BRu9Z_jZ8dob5_iW/exec";
 
   function hideAll() {
     clientUniversalFields.classList.add("hidden");
@@ -489,11 +492,10 @@ if (callType.value === "rental") {
 
     try {
       const resp = await fetch(WEB_APP_URL, {
-       method: "POST",
-       mode: "no-cors",
-       body: JSON.stringify(data),
-});
-
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(data),
+      });
 
       let json;
       try {
@@ -507,7 +509,6 @@ if (callType.value === "rental") {
         output.textContent = "✅ Submitted!";
         form.reset();
         hideAll();
-        return;
       } else if (resp.ok) {
         output.style.color = "green";
         output.textContent = "✅ Submitted!";
@@ -535,11 +536,6 @@ if (callType.value === "rental") {
     });
   });
 });
-
-
-
-
-
 
 
 
