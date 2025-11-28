@@ -365,6 +365,7 @@ function clearRentalFields() {
 
       if (status === "Interested" || status === "Thinking") {
         const fullname = document.getElementById("c_fullname").value.trim();
+        const storeName = document.getElementById("c_store").value.trim();
         const business = document.getElementById("c_business").value.trim();
         const area = document.getElementById("c_area").value.trim();
         const riderType = document.getElementById("c_rider_type").value;
@@ -374,7 +375,7 @@ function clearRentalFields() {
         const reason = reasonField.value.trim();
 
         if (status === "Interested") {
-          if (!fullname || !business || !area || !riderType || !gst || !purpose || !remark) {
+          if (!fullname || !storeName || !business || !area || !riderType || !gst || !purpose || !remark) {
             output.textContent = "❌ Fill all required fields!";
             return;
           }
@@ -532,6 +533,7 @@ if (callType.value === "rental") {
     });
   });
 });
+
 
 
 
